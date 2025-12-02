@@ -1,22 +1,23 @@
-function Button({ setCount, operation, value }) {
+function Button({ setCount, operation, value, setValue, setList, count }) {
+  const handleClick = () => {
+    if (operation === "reset") {
+      setCount(0);
+      setValue(1);
+      setList((prevList) => [...prevList, 0]);
+    } else {
+      const newCount = operation === "add" ? count + value : count - value;
+      setCount(newCount);
+      setList((prevList) => [...prevList, newCount]);
+    }
+  };
   return (
     <div>
-      <button
-        onClick={() =>
-          setCount((prevCount) =>
-            operation === "reset"
-              ? 0
-              : operation === "add"
-              ? value === ""
-                ? prevCount + 1
-                : prevCount + value
-              : value === ""
-              ? prevCount - 1
-              : prevCount - value
-          )
-        }
-      >
-        {operation === "reset" ? "reset" : operation === "add" ? "+1" : "-1"}
+      <button onClick={handleClick}>
+        {operation === "reset"
+          ? "reset"
+          : operation === "add"
+          ? `+${value}`
+          : `-${value}`}
       </button>
     </div>
   );
