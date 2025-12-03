@@ -14,6 +14,10 @@ export default function App() {
     return `⭐⭐⭐${count}`;
   };
 
+  const lastThree = list.slice(-3);
+
+  console.log("Last three history items:", lastThree);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
       <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8">
@@ -94,7 +98,7 @@ export default function App() {
                 </tr>
               </thead>
               <tbody>
-                {list.map((item, index) => (
+                {lastThree.map((item, index) => (
                   <tr
                     key={index}
                     className={`border border-indigo-300 ${
