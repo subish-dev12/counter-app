@@ -1,10 +1,18 @@
 import { useState } from "react";
 import Button from "./Button";
-
+import StatBoard from "./StatBoard";
 export default function App() {
   const [count, setCount] = useState(0);
   const [value, setValue] = useState(1);
   const [list, setList] = useState([]);
+  const [action, setAction] = useState(0);
+
+  console.log("action is ", action);
+
+  const largest = Math.max(...list);
+  const smallest = Math.min(...list);
+
+  console.log("Largest value in history:", largest);
 
   const getLogo = (count) => {
     if (count < 0) return `💀${count}`;
@@ -15,8 +23,6 @@ export default function App() {
   };
 
   const lastThree = list.slice(-3);
-
-  console.log("Last three history items:", lastThree);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
@@ -33,6 +39,7 @@ export default function App() {
             value={value}
             setList={setList}
             count={count}
+            setAction={setAction}
           />
           <Button
             operation="subtract"
@@ -40,6 +47,7 @@ export default function App() {
             value={value}
             setList={setList}
             count={count}
+            setAction={setAction}
           />
         </div>
 
@@ -64,6 +72,7 @@ export default function App() {
             setValue={setValue}
             setList={setList}
             count={count}
+            setAction={setAction}
           />
         </div>
 
@@ -123,6 +132,7 @@ export default function App() {
           </button>
         )}
       </div>
+      <StatBoard largest={largest} smallest={smallest} action={action} />
     </div>
   );
 }

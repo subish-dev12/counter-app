@@ -1,4 +1,12 @@
-function Button({ setCount, operation, value, setValue, setList, count }) {
+function Button({
+  setCount,
+  operation,
+  value,
+  setValue,
+  setList,
+  count,
+  setAction,
+}) {
   const handleClick = () => {
     if (operation === "reset") {
       setCount(0);
@@ -9,6 +17,7 @@ function Button({ setCount, operation, value, setValue, setList, count }) {
       setCount(newCount);
       setList((prevList) => [...prevList, newCount]);
     }
+    setAction((prevCount) => prevCount + 1);
   };
 
   const getButtonStyle = () => {

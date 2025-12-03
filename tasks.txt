@@ -1,0 +1,21 @@
+Undo/Redo functionality - Allow users to step back through their history or redo actions without manually resetting, giving more control over their counting journey.
+
+Counter presets - Quick buttons for common step values (±1, ±5, ±10) so users don't always need to manually enter the value.
+
+Statistics dashboard - Show stats like highest count reached, lowest count, total operations performed, and average step size.
+
+Keyboard shortcuts - Support arrow keys or +/- keys to increment/decrement for faster interaction without clicking buttons.
+
+Dark mode toggle - Let users switch between light and dark themes, especially useful for extended usage.
+
+Counter limits/boundaries - Allow users to set minimum and maximum count values to prevent going beyond certain thresholds.
+
+Full history view - Currently showing only the last 3 items. Add a modal or expandable section to see the complete history with timestamps.
+
+Export history - Download count history as CSV or JSON for record-keeping or analysis.
+
+Multiple counters - Allow users to create and manage several independent counters simultaneously.
+
+Persistence - Save counter state and history to localStorage so it survives page refreshes.
+
+Which of these interests you? I'd be happy to help implement any of them!
