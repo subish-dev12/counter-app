@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "./Button";
 import StatBoard from "./StatBoard";
 export default function App() {
@@ -7,12 +7,33 @@ export default function App() {
   const [list, setList] = useState([]);
   const [action, setAction] = useState(0);
 
-  console.log("action is ", action);
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "=") {
+        setCount((prevCount) => {
+          const newCount = prevCount + value;
+          setList((prevList) => [...prevList, newCount]);
+          setAction((prevAction) => prevAction + 1);
+          return newCount;
+        });
+      }
+
+      if (e.key === "-") {
+        setCount((prevCount) => {
+          const newCount = prevCount - value;
+          setList((prevList) => [...prevList, newCount]);
+          setAction((prevAction) => prevAction + 1);
+          return newCount;
+        });
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [value]);
 
   const largest = Math.max(...list);
   const smallest = Math.min(...list);
-
-  console.log("Largest value in history:", largest);
 
   const getLogo = (count) => {
     if (count < 0) return `💀${count}`;
