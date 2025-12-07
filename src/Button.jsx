@@ -4,20 +4,21 @@ function Button({
   value,
   setValue,
   setList,
-  count,
+  // count,
   setAction,
+  // maxCountValue,
+  // minCountValue,
+  calculation,
 }) {
   const handleClick = () => {
     if (operation === "reset") {
       setCount(0);
       setValue(1);
       setList((prevList) => [...prevList, 0]);
-    } else {
-      const newCount = operation === "add" ? count + value : count - value;
-      setCount(newCount);
-      setList((prevList) => [...prevList, newCount]);
+      setAction(0);
     }
-    setAction((prevCount) => prevCount + 1);
+    if (operation === "increment") calculation("increment");
+    if (operation === "decrement") calculation("decrement");
   };
 
   const getButtonStyle = () => {

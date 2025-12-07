@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Button from "./Button";
 import StatBoard from "./StatBoard";
 export default function App() {
@@ -7,33 +7,46 @@ export default function App() {
   const [list, setList] = useState([]);
   const [action, setAction] = useState(0);
 
+  const maxCountValue = 100;
+  const minCountValue = -100;
+
+  const calculation = useCallback(
+    (operation) => {
+      setCount((prevCount) => {
+        if (prevCount >= maxCountValue && operation === "increment")
+          return prevCount;
+        // if (prevCount >= maxCountValue || prevCount <= minCountValue)
+        if (value === "") {
+          setValue(1);
+        }
+        const newCount =
+          operation === "increment" ? prevCount + value : prevCount - value;
+        console.log("newcount would be", typeof newCount);
+        setList((prevList) => [...prevList, newCount]);
+        setAction((prevAction) => prevAction + 1);
+        return newCount;
+      });
+    },
+    [value, maxCountValue]
+  );
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "=") {
-        setCount((prevCount) => {
-          const newCount = prevCount + value;
-          setList((prevList) => [...prevList, newCount]);
-          setAction((prevAction) => prevAction + 1);
-          return newCount;
-        });
+        calculation("increment");
       }
 
       if (e.key === "-") {
-        setCount((prevCount) => {
-          const newCount = prevCount - value;
-          setList((prevList) => [...prevList, newCount]);
-          setAction((prevAction) => prevAction + 1);
-          return newCount;
-        });
+        calculation("decrement");
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [value]);
+  }, [calculation]);
 
-  const largest = Math.max(...list);
-  const smallest = Math.min(...list);
+  const largest = list.length > 0 ? Math.max(...list) : 0;
+  const smallest = list.length > 0 ? Math.min(...list) : 0;
 
   const getLogo = (count) => {
     if (count < 0) return `💀${count}`;
@@ -61,6 +74,9 @@ export default function App() {
             setList={setList}
             count={count}
             setAction={setAction}
+            maxCountValue={maxCountValue}
+            minCountValue={minCountValue}
+            calculation={calculation}
           />
           <Button
             operation="subtract"
@@ -69,6 +85,9 @@ export default function App() {
             setList={setList}
             count={count}
             setAction={setAction}
+            maxCountValue={maxCountValue}
+            minCountValue={minCountValue}
+            calculation={calculation}
           />
         </div>
 
@@ -94,6 +113,9 @@ export default function App() {
             setList={setList}
             count={count}
             setAction={setAction}
+            maxCountValue={maxCountValue}
+            minCountValue={minCountValue}
+            calculation={calculation}
           />
         </div>
 
@@ -108,9 +130,23 @@ export default function App() {
           <input
             type="number"
             value={value}
-            onChange={(e) =>
-              setValue(e.target.value === "" ? "" : Number(e.target.value))
-            }
+            max={100}
+            min={-100}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value === "") {
+                setValue("");
+              } else {
+                const num = Number(value);
+                if (
+                  Number.isFinite(num) &&
+                  num <= maxCountValue &&
+                  num >= minCountValue
+                ) {
+                  setValue(num);
+                }
+              }
+            }}
             className="w-full px-4 py-2 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </form>
