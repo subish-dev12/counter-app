@@ -134,17 +134,15 @@ export default function App() {
             min={-100}
             onChange={(e) => {
               const value = e.target.value;
-              if (value === "") {
-                setValue("");
-              } else {
-                const num = Number(value);
-                if (
-                  Number.isFinite(num) &&
-                  num <= maxCountValue &&
-                  num >= minCountValue
-                ) {
-                  setValue(num);
-                }
+              const stepValue = value === "" || value === 0 ? 1 : value;
+              setValue(stepValue);
+              const num = Number(value);
+              if (
+                Number.isFinite(num) &&
+                num <= maxCountValue &&
+                num >= minCountValue
+              ) {
+                setValue(num);
               }
             }}
             className="w-full px-4 py-2 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
