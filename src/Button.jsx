@@ -38,7 +38,7 @@ function Button({
     >
       {operation === "reset"
         ? "Reset"
-        : operation === "add"
+        : operation === "increment"
         ? `+${value}`
         : `-${value}`}
     </button>
