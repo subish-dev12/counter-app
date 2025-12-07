@@ -13,21 +13,32 @@ export default function App() {
   const calculation = useCallback(
     (operation) => {
       setCount((prevCount) => {
-        if (prevCount >= maxCountValue && operation === "increment")
-          return prevCount;
-        // if (prevCount >= maxCountValue || prevCount <= minCountValue)
-        if (value === "") {
-          setValue(1);
-        }
+        const newValue = value === "" || value === 0 ? 1 : value;
+        // setValue(newValue);
+
         const newCount =
-          operation === "increment" ? prevCount + value : prevCount - value;
-        console.log("newcount would be", typeof newCount);
+          operation === "increment"
+            ? prevCount + newValue
+            : prevCount - newValue;
+        if (newCount > maxCountValue) {
+          console.log(
+            `You are not allowed to cross the ${maxCountValue} limit.`
+          );
+          return prevCount;
+        }
+
+        if (newCount < minCountValue) {
+          console.log(
+            `You are not allowed to cross the ${minCountValue} limit.`
+          );
+          return prevCount;
+        }
         setList((prevList) => [...prevList, newCount]);
         setAction((prevAction) => prevAction + 1);
         return newCount;
       });
     },
-    [value, maxCountValue]
+    [value, maxCountValue, minCountValue]
   );
 
   useEffect(() => {
@@ -68,7 +79,7 @@ export default function App() {
         {/* Buttons */}
         <div className="flex gap-4 mb-6">
           <Button
-            operation="add"
+            operation="increment"
             setCount={setCount}
             value={value}
             setList={setList}
@@ -79,7 +90,7 @@ export default function App() {
             calculation={calculation}
           />
           <Button
-            operation="subtract"
+            operation="decrement"
             setCount={setCount}
             value={value}
             setList={setList}
