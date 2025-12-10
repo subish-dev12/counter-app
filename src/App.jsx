@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Button from "./Button";
 import StatBoard from "./StatBoard";
+import History from "./History";
 export default function App() {
   const [count, setCount] = useState(0);
   const [value, setValue] = useState(1);
@@ -14,25 +15,21 @@ export default function App() {
     (operation) => {
       setCount((prevCount) => {
         const newValue = value === "" || value === 0 ? 1 : value;
-        // setValue(newValue);
 
         const newCount =
           operation === "increment"
             ? prevCount + newValue
             : prevCount - newValue;
-        if (newCount > maxCountValue) {
-          console.log(
-            `You are not allowed to cross the ${maxCountValue} limit.`
+        if (newCount > maxCountValue || newCount < minCountValue) {
+          const maxOrMin = newCount > maxCountValue ? "maximum" : "minimum";
+          alert(
+            `You are not allowed to cross the ${maxOrMin} boundary limit of ${
+              maxOrMin === "maximum" ? maxCountValue : minCountValue
+            }`
           );
           return prevCount;
         }
 
-        if (newCount < minCountValue) {
-          console.log(
-            `You are not allowed to cross the ${minCountValue} limit.`
-          );
-          return prevCount;
-        }
         setList((prevList) => [...prevList, newCount]);
         setAction((prevAction) => prevAction + 1);
         return newCount;
@@ -43,6 +40,8 @@ export default function App() {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
+      if (e.target.tagName === "INPUT") return;
+
       if (e.key === "=") {
         calculation("increment");
       }
@@ -141,12 +140,14 @@ export default function App() {
           <input
             type="number"
             value={value}
-            max={100}
-            min={-100}
             onChange={(e) => {
               const value = e.target.value;
-              const stepValue = value === "" || value === 0 ? 1 : value;
-              setValue(stepValue);
+
+              if (value === "") {
+                setValue("");
+                return;
+              }
+
               const num = Number(value);
               if (
                 Number.isFinite(num) &&
@@ -161,34 +162,7 @@ export default function App() {
         </form>
 
         {/* History Section */}
-        <h3 className="text-xl font-bold text-gray-800 mb-4">History:</h3>
-        {list.length > 0 && (
-          <div className="mb-4 overflow-x-auto">
-            <table className="w-full border-collapse border border-indigo-300">
-              <thead>
-                <tr className="bg-indigo-600">
-                  <th className="border border-indigo-300 px-4 py-2 text-white font-semibold">
-                    History
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {lastThree.map((item, index) => (
-                  <tr
-                    key={index}
-                    className={`border border-indigo-300 ${
-                      index % 2 === 0 ? "bg-indigo-50" : "bg-white"
-                    } hover:bg-indigo-100`}
-                  >
-                    <td className="px-4 py-2 text-center text-gray-700 font-medium">
-                      {item}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <History list={list} lastThree={lastThree} />
         {list.length > 0 && (
           <button
             onClick={() => setList([])}
