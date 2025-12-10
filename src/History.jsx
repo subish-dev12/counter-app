@@ -10,6 +10,9 @@ function History({ list, lastThree }) {
                 <th className="border border-indigo-300 px-4 py-2 text-white font-semibold">
                   History
                 </th>
+                <th className="border border-indigo-300 px-4 py-2 text-white font-semibold">
+                  Time
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -21,7 +24,10 @@ function History({ list, lastThree }) {
                   } hover:bg-indigo-100`}
                 >
                   <td className="px-4 py-2 text-center text-gray-700 font-medium">
-                    {item}
+                    {item.value}
+                  </td>
+                  <td className="px-4 py-2 text-center text-gray-700 font-medium">
+                    {item.timeStamp}
                   </td>
                 </tr>
               ))}

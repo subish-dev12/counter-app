@@ -11,6 +11,23 @@ export default function App() {
   const maxCountValue = 100;
   const minCountValue = -100;
 
+  const getTime = () => {
+    const now = new Date();
+    let hours = now.getHours();
+    let minutes = now.getMinutes();
+    let seconds = now.getSeconds();
+
+    const timeFormat = hours >= 12 ? "pm" : "am";
+    // to convert hours into 12 hour format we did hours % 12.
+    hours = hours % 12;
+    hours = hours.toString().padStart(2, "0");
+    minutes = minutes.toString().padStart(2, "0");
+    seconds = seconds.toString().padStart(2, "0");
+
+    const time = `${hours}:${minutes}:${seconds}${timeFormat}`;
+
+    return time;
+  };
   const calculation = useCallback(
     (operation) => {
       setCount((prevCount) => {
@@ -30,7 +47,10 @@ export default function App() {
           return prevCount;
         }
 
-        setList((prevList) => [...prevList, newCount]);
+        setList((prevList) => [
+          ...prevList,
+          { value: newCount, timeStamp: getTime() },
+        ]);
         setAction((prevAction) => prevAction + 1);
         return newCount;
       });
