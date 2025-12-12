@@ -8,6 +8,7 @@ export default function App() {
   const [list, setList] = useState([]);
   const [action, setAction] = useState(0);
 
+  const lastThree = list.slice(-3);
   const maxCountValue = 100;
   const minCountValue = -100;
 
@@ -75,8 +76,12 @@ export default function App() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [calculation]);
 
-  const largest = list.length > 0 ? Math.max(...list) : 0;
-  const smallest = list.length > 0 ? Math.min(...list) : 0;
+  const smallest =
+    list.length > 0 ? Math.min(...list.map((item) => item.value)) : 0;
+  const largest =
+    list.length > 0 ? Math.max(...list.map((item) => item.value)) : 0;
+
+  console.log("largest is", list);
 
   const getLogo = (count) => {
     if (count < 0) return `💀${count}`;
@@ -85,8 +90,6 @@ export default function App() {
     if (count <= 30) return `⭐⭐${count}`;
     return `⭐⭐⭐${count}`;
   };
-
-  const lastThree = list.slice(-3);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
