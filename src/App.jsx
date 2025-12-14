@@ -3,12 +3,16 @@ import Button from "./Button";
 import StatBoard from "./StatBoard";
 import History from "./History";
 export default function App() {
-  const [count, setCount] = useState(0);
-  const [value, setValue] = useState(1);
-  const [list, setList] = useState([]);
-  const [action, setAction] = useState(0);
+  const [counter, setCounter] = useState([
+    { id: new Date(), count: 0, value: 1, list: [], action: 0 },
+  ]);
 
-  const lastThree = list.slice(-3);
+  // const [count, setCount] = useState(0);
+  // const [value, setValue] = useState(1);
+  // const [list, setList] = useState([]);
+  // const [action, setAction] = useState(0);
+
+  // const lastThree = list.slice(-3);
   const maxCountValue = 100;
   const minCountValue = -100;
 
@@ -30,14 +34,22 @@ export default function App() {
     return time;
   };
   const calculation = useCallback(
-    (operation) => {
-      setCount((prevCount) => {
-        const newValue = value === "" || value === 0 ? 1 : value;
+    (operation, id) => {
+      setCounter((prevCounter) => {
+        // const newValue = value === "" || value === 0 ? 1 : value;
+
+        prevCounter.map((item) => {
+          item.id === id
+            ? item.value === "" || item.value === 0
+              ? { ...item, value: 1 }
+              : item.value
+            : item;
+        });
 
         const newCount =
           operation === "increment"
-            ? prevCount + newValue
-            : prevCount - newValue;
+            ? prevCounter + newValue
+            : prevCounter - newValue;
         if (newCount > maxCountValue || newCount < minCountValue) {
           const maxOrMin = newCount > maxCountValue ? "maximum" : "minimum";
           alert(
@@ -45,7 +57,7 @@ export default function App() {
               maxOrMin === "maximum" ? maxCountValue : minCountValue
             }`
           );
-          return prevCount;
+          return prevCounter;
         }
 
         setList((prevList) => [
@@ -81,7 +93,7 @@ export default function App() {
   const largest =
     list.length > 0 ? Math.max(...list.map((item) => item.value)) : 0;
 
-  console.log("largest is", list);
+  // console.log("largest is", list);
 
   const getLogo = (count) => {
     if (count < 0) return `💀${count}`;
