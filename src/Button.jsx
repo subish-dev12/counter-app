@@ -1,21 +1,10 @@
-function Button({
-  setCount,
-  operation,
-  value,
-  setValue,
-  setList,
-  // count,
-  setAction,
-  // maxCountValue,
-  // minCountValue,
-  calculation,
-}) {
+function Button({ setCount, operation, setValue, item, calculation }) {
   const handleClick = () => {
     if (operation === "reset") {
-      setCount(0);
-      setValue(1);
-      setList((prevList) => [...prevList, 0]);
-      setAction(0);
+      item.count = 0;
+      item.value = 1;
+      item.list = [...item.list, 0];
+      item.action = 0;
     }
     if (operation === "increment") calculation("increment");
     if (operation === "decrement") calculation("decrement");

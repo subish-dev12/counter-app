@@ -4,15 +4,17 @@ import StatBoard from "./StatBoard";
 import History from "./History";
 export default function App() {
   const [counter, setCounter] = useState([
-    { id: new Date(), count: 0, value: 1, list: [], action: 0 },
+    {
+      id: new Date(),
+      count: 0,
+      value: 1,
+      list: [],
+      action: 0,
+      minCount: 0,
+      maxCount: 0,
+    },
   ]);
 
-  // const [count, setCount] = useState(0);
-  // const [value, setValue] = useState(1);
-  // const [list, setList] = useState([]);
-  // const [action, setAction] = useState(0);
-
-  // const lastThree = list.slice(-3);
   const maxCountValue = 100;
   const minCountValue = -100;
 
@@ -36,39 +38,46 @@ export default function App() {
   const calculation = useCallback(
     (operation, id) => {
       setCounter((prevCounter) => {
-        // const newValue = value === "" || value === 0 ? 1 : value;
+        const targetItem = prevCounter.find((item) => item.id === id);
+        const baseValue =
+          targetItem.value === 0 || targetItem.value === "" ? 1 : targetItem;
 
-        prevCounter.map((item) => {
-          item.id === id
-            ? item.value === "" || item.value === 0
-              ? { ...item, value: 1 }
-              : item.value
-            : item;
-        });
-
-        const newCount =
+        const newValue =
           operation === "increment"
-            ? prevCounter + newValue
-            : prevCounter - newValue;
-        if (newCount > maxCountValue || newCount < minCountValue) {
-          const maxOrMin = newCount > maxCountValue ? "maximum" : "minimum";
+            ? targetItem.count + baseValue
+            : targetItem.count - baseValue;
+
+        if (newValue > maxCountValue) {
           alert(
-            `You are not allowed to cross the ${maxOrMin} boundary limit of ${
-              maxOrMin === "maximum" ? maxCountValue : minCountValue
-            }`
+            `you can't go beyond the maximum value limit of ${maxCountValue}`
           );
           return prevCounter;
         }
 
-        setList((prevList) => [
-          ...prevList,
-          { value: newCount, timeStamp: getTime() },
-        ]);
-        setAction((prevAction) => prevAction + 1);
-        return newCount;
+        if (newValue < maxCountValue) {
+          alert(
+            `you can't go beyond the minimum value limit of ${minCountValue}`
+          );
+          return prevCounter;
+        }
+
+        const newCounter = prevCounter.map((item) =>
+          item.id === id
+            ? {
+                ...item,
+                value: baseValue,
+                count: newValue,
+                list: [{ value: item.count, timeStamp: getTime() }],
+                action: item.action + 1,
+                maxCount: Math.max(...counter.map((item) => item.count)),
+                minCount: Math.min(...counter.map((item) => item.count)),
+              }
+            : item
+        );
+        return newCounter;
       });
     },
-    [value, maxCountValue, minCountValue]
+    [counter, minCountValue]
   );
 
   useEffect(() => {
@@ -88,12 +97,7 @@ export default function App() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [calculation]);
 
-  const smallest =
-    list.length > 0 ? Math.min(...list.map((item) => item.value)) : 0;
-  const largest =
-    list.length > 0 ? Math.max(...list.map((item) => item.value)) : 0;
-
-  // console.log("largest is", list);
+  //console.log("largest is", list);
 
   const getLogo = (count) => {
     if (count < 0) return `💀${count}`;
@@ -104,110 +108,104 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
-      <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8">
-        <h1 className="text-3xl font-bold text-center text-indigo-600 mb-8">
-          Counter App
-        </h1>
-
-        {/* Buttons */}
-        <div className="flex gap-4 mb-6">
-          <Button
-            operation="increment"
-            setCount={setCount}
-            value={value}
-            setList={setList}
-            count={count}
-            setAction={setAction}
-            maxCountValue={maxCountValue}
-            minCountValue={minCountValue}
-            calculation={calculation}
-          />
-          <Button
-            operation="decrement"
-            setCount={setCount}
-            value={value}
-            setList={setList}
-            count={count}
-            setAction={setAction}
-            maxCountValue={maxCountValue}
-            minCountValue={minCountValue}
-            calculation={calculation}
-          />
-        </div>
-
-        {/* Counter Display */}
-        <p
-          className={`text-4xl font-bold text-center py-6 rounded-lg mb-6 ${
-            count < 0
-              ? "bg-red-100 text-red-600"
-              : count === 0
-              ? "bg-gray-100 text-gray-600"
-              : "bg-green-100 text-green-600"
-          }`}
+    <>
+      {counter.map((item, index) => (
+        <div
+          className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8"
+          key={item.id}
         >
-          {getLogo(count)}
-        </p>
+          <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8">
+            <h1 className="text-3xl font-bold text-center text-indigo-600 mb-8">
+              Counter App
+            </h1>
 
-        {/* Reset Button */}
-        <div className="mb-6">
-          <Button
-            operation="reset"
-            setCount={setCount}
-            setValue={setValue}
-            setList={setList}
-            count={count}
-            setAction={setAction}
-            maxCountValue={maxCountValue}
-            minCountValue={minCountValue}
-            calculation={calculation}
-          />
+            {/* Buttons */}
+            <div className="flex gap-4 mb-6">
+              <Button
+                operation="increment"
+                item={item}
+                maxCountValue={maxCountValue}
+                minCountValue={minCountValue}
+                calculation={calculation}
+              />
+              <Button
+                operation="decrement"
+                counter={counter}
+                maxCountValue={maxCountValue}
+                minCountValue={minCountValue}
+                calculation={calculation}
+              />
+            </div>
+
+            {/* Counter Display */}
+            <p
+              className={`text-4xl font-bold text-center py-6 rounded-lg mb-6 ${
+                count < 0
+                  ? "bg-red-100 text-red-600"
+                  : count === 0
+                  ? "bg-gray-100 text-gray-600"
+                  : "bg-green-100 text-green-600"
+              }`}
+            >
+              {getLogo(count)}
+            </p>
+
+            {/* Reset Button */}
+            <div className="mb-6">
+              <Button
+                operation="reset"
+                maxCountValue={maxCountValue}
+                minCountValue={minCountValue}
+                calculation={calculation}
+              />
+            </div>
+
+            {/* Input Form */}
+            <form
+              className="mb-8 p-4 bg-indigo-50 rounded-lg"
+              onSubmit={(e) => e.preventDefault()}
+            >
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Step value by:
+              </label>
+              <input
+                type="number"
+                value={item.value}
+                onChange={(e) => {
+                  const value = e.target.value;
+
+                  if (item.value === "") {
+                    item.value === "";
+                    return;
+                  }
+
+                  const num = Number(item.value);
+                  if (
+                    Number.isFinite(num) &&
+                    num <= maxCountValue &&
+                    num >= minCountValue
+                  ) {
+                    item.value = num;
+                  }
+                }}
+                className="w-full px-4 py-2 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </form>
+
+            {/* History Section */}
+            <History list={list} lastThree={lastThree} />
+            {list.length > 0 && (
+              <button
+                onClick={() => setList([])}
+                className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200"
+              >
+                Reset History
+              </button>
+            )}
+          </div>
+          <StatBoard largest={largest} smallest={smallest} action={action} />
         </div>
-
-        {/* Input Form */}
-        <form
-          className="mb-8 p-4 bg-indigo-50 rounded-lg"
-          onSubmit={(e) => e.preventDefault()}
-        >
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Step value by:
-          </label>
-          <input
-            type="number"
-            value={value}
-            onChange={(e) => {
-              const value = e.target.value;
-
-              if (value === "") {
-                setValue("");
-                return;
-              }
-
-              const num = Number(value);
-              if (
-                Number.isFinite(num) &&
-                num <= maxCountValue &&
-                num >= minCountValue
-              ) {
-                setValue(num);
-              }
-            }}
-            className="w-full px-4 py-2 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </form>
-
-        {/* History Section */}
-        <History list={list} lastThree={lastThree} />
-        {list.length > 0 && (
-          <button
-            onClick={() => setList([])}
-            className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200"
-          >
-            Reset History
-          </button>
-        )}
-      </div>
-      <StatBoard largest={largest} smallest={smallest} action={action} />
-    </div>
+      ))}
+    </>
   );
 }
