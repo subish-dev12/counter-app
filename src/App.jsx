@@ -109,7 +109,7 @@ export default function App() {
 
   return (
     <>
-      {counter.map((item, index) => (
+      {counter.map((item) => (
         <div
           className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8"
           key={item.id}
@@ -123,31 +123,33 @@ export default function App() {
             <div className="flex gap-4 mb-6">
               <Button
                 operation="increment"
-                item={item}
                 maxCountValue={maxCountValue}
                 minCountValue={minCountValue}
                 calculation={calculation}
+                setCounter={setCounter}
+                id={item.id}
               />
               <Button
                 operation="decrement"
-                counter={counter}
+                setCounter={setCounter}
                 maxCountValue={maxCountValue}
                 minCountValue={minCountValue}
                 calculation={calculation}
+                id={item.id}
               />
             </div>
 
             {/* Counter Display */}
             <p
               className={`text-4xl font-bold text-center py-6 rounded-lg mb-6 ${
-                count < 0
+                item.count < 0
                   ? "bg-red-100 text-red-600"
-                  : count === 0
+                  : item.count === 0
                   ? "bg-gray-100 text-gray-600"
                   : "bg-green-100 text-green-600"
               }`}
             >
-              {getLogo(count)}
+              {getLogo(item.count)}
             </p>
 
             {/* Reset Button */}
@@ -157,6 +159,8 @@ export default function App() {
                 maxCountValue={maxCountValue}
                 minCountValue={minCountValue}
                 calculation={calculation}
+                setCounter={setCounter}
+                id={item.id}
               />
             </div>
 
@@ -193,17 +197,21 @@ export default function App() {
             </form>
 
             {/* History Section */}
-            <History list={list} lastThree={lastThree} />
-            {list.length > 0 && (
+            <History list={item.list} />
+            {/* {item.list.length > 0 && (
               <button
                 onClick={() => setList([])}
                 className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200"
               >
                 Reset History
               </button>
-            )}
+            )} */}
           </div>
-          <StatBoard largest={largest} smallest={smallest} action={action} />
+          <StatBoard
+            largest={item.maxCount}
+            smallest={item.minCount}
+            action={item.action}
+          />
         </div>
       ))}
     </>
