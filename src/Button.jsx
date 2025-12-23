@@ -1,9 +1,9 @@
-function Button({ setCounter, operation, id, calculation }) {
+function Button({ setCounter, operation, id, calculation, children }) {
   const handleClick = () => {
-    if (operation === "reset") {
+    if (operation === "reset/count") {
       // item.count = 0;
       // item.value = 1;
-      // item.list = [...item.list, 0];
+      // item.list = [...item.list, 0];  <--------- direct mutation bad practice
       // item.action = 0;
       setCounter((prevCounter) =>
         prevCounter.map((counterItem) =>
@@ -12,10 +12,17 @@ function Button({ setCounter, operation, id, calculation }) {
                 ...counterItem,
                 count: 0,
                 value: 1,
-                list: [...counterItem.list, 0],
-                action: 0,
+                // list: [...counterItem.list, 0],
+                // action: 0,
               }
             : counterItem
+        )
+      );
+    }
+    if (operation === "reset/history") {
+      setCounter((prevCounter) =>
+        prevCounter.map((item) =>
+          item.id === id ? { ...item, list: [] } : item
         )
       );
     }
@@ -38,7 +45,15 @@ function Button({ setCounter, operation, id, calculation }) {
       onClick={handleClick}
       className={`${getButtonStyle()} text-white font-bold py-3 px-6 rounded-lg transition duration-200 flex-1 text-lg shadow-md hover:shadow-lg`}
     >
-      {operation === "reset" ? "Reset" : operation === "increment" ? `+` : `-`}
+      {/* {operation === "reset/count"
+        ? "reset-count"
+        : operation === "increment"  <----------- this whole check is not required if we pass the data through the children prop 
+        ? `+`
+        : operation === "reset/history"
+        ? children
+
+        : `-`} */}
+      {children}
     </button>
   );
 }

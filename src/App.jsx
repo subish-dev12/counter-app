@@ -39,8 +39,16 @@ export default function App() {
     (operation, id) => {
       setCounter((prevCounter) => {
         const targetItem = prevCounter.find((item) => item.id === id);
+
+        //very necessary to see the targetItem exists
+        if (!targetItem) {
+          console.log(`item with id:${id} dont exist`);
+          return prevCounter;
+        }
         const baseValue =
-          targetItem.value === 0 || targetItem.value === "" ? 1 : targetItem;
+          targetItem.value === 0 || targetItem.value === ""
+            ? 1
+            : targetItem.value;
 
         const newValue =
           operation === "increment"
@@ -54,7 +62,7 @@ export default function App() {
           return prevCounter;
         }
 
-        if (newValue < maxCountValue) {
+        if (newValue < minCountValue) {
           alert(
             `you can't go beyond the minimum value limit of ${minCountValue}`
           );
@@ -67,17 +75,37 @@ export default function App() {
                 ...item,
                 value: baseValue,
                 count: newValue,
-                list: [{ value: item.count, timeStamp: getTime() }],
+                list: [...item.list, { value: newValue, timeStamp: getTime() }],
                 action: item.action + 1,
-                maxCount: Math.max(...counter.map((item) => item.count)),
-                minCount: Math.min(...counter.map((item) => item.count)),
+                //not a good idea to map over the array inside the array that you're trying to build
+                // maxCount: Math.max(...counter.map((item) => item.count)),
+                // minCount: Math.min(...counter.map((item) => item.count)),
               }
             : item
         );
-        return newCounter;
+
+        const itemToBeUpdated = newCounter.find((c) => c.id === id);
+
+        // if (!itemToBeUpdated) {
+        //   console.log(`there's no item with id: ${id}`);     <-------------- redundant check but nice to do it sometimes.
+        //   return newCounter;                                  since we already know id exists while creating newCounter. so
+        // }
+
+        if (!itemToBeUpdated.list || itemToBeUpdated.list.length === 0) {
+          return newCounter;
+        }
+        const listValues = itemToBeUpdated?.list.map((a) => a.value);
+        const maxCount = listValues.length > 0 ? Math.max(...listValues) : null;
+        const minCount = listValues.length > 0 ? Math.min(...listValues) : null;
+
+        const finalResult = newCounter.map((a) =>
+          a.id === id ? { ...a, maxCount, minCount } : a
+        );
+
+        return finalResult;
       });
     },
-    [counter, minCountValue]
+    [minCountValue]
   );
 
   useEffect(() => {
@@ -128,7 +156,9 @@ export default function App() {
                 calculation={calculation}
                 setCounter={setCounter}
                 id={item.id}
-              />
+              >
+                +
+              </Button>
               <Button
                 operation="decrement"
                 setCounter={setCounter}
@@ -136,7 +166,9 @@ export default function App() {
                 minCountValue={minCountValue}
                 calculation={calculation}
                 id={item.id}
-              />
+              >
+                -
+              </Button>
             </div>
 
             {/* Counter Display */}
@@ -155,13 +187,15 @@ export default function App() {
             {/* Reset Button */}
             <div className="mb-6">
               <Button
-                operation="reset"
+                operation="reset/count"
                 maxCountValue={maxCountValue}
                 minCountValue={minCountValue}
                 calculation={calculation}
                 setCounter={setCounter}
                 id={item.id}
-              />
+              >
+                reset-count
+              </Button>
             </div>
 
             {/* Input Form */}
@@ -178,18 +212,26 @@ export default function App() {
                 onChange={(e) => {
                   const value = e.target.value;
 
-                  if (item.value === "") {
-                    item.value === "";
+                  if (value === "") {
+                    setCounter((prevCounter) =>
+                      prevCounter.map((c) =>
+                        c.id === item.id ? { ...c, value: "" } : c
+                      )
+                    );
                     return;
                   }
 
-                  const num = Number(item.value);
+                  const num = Number(value);
                   if (
                     Number.isFinite(num) &&
                     num <= maxCountValue &&
                     num >= minCountValue
                   ) {
-                    item.value = num;
+                    setCounter((prevCounter) =>
+                      prevCounter.map((c) =>
+                        c.id === item.id ? { ...c, value: num } : c
+                      )
+                    );
                   }
                 }}
                 className="w-full px-4 py-2 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -198,14 +240,21 @@ export default function App() {
 
             {/* History Section */}
             <History list={item.list} />
-            {/* {item.list.length > 0 && (
-              <button
-                onClick={() => setList([])}
-                className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200"
+            {item.list.length > 0 && (
+              // <button
+              //   onClick={() => setCounter()}
+              //   className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200"
+              // >
+              //   Reset History
+              // </button>
+              <Button
+                operation="reset/history"
+                id={item.id}
+                setCounter={setCounter}
               >
-                Reset History
-              </button>
-            )} */}
+                Reset-History
+              </Button>
+            )}
           </div>
           <StatBoard
             largest={item.maxCount}

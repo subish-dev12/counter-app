@@ -1,9 +1,10 @@
-function History({ list, lastThree }) {
+function History({ list }) {
+  const lastThree = list.slice(-3);
   return (
     <>
-      <h3 className="text-xl font-bold text-gray-800 mb-4">History:</h3>
       {list.length > 0 && (
         <div className="mb-4 overflow-x-auto">
+          <h3 className="text-xl font-bold text-gray-800 mb-4">History:</h3>
           <table className="w-full border-collapse border border-indigo-300">
             <thead>
               <tr className="bg-indigo-600">
