@@ -1,58 +1,26 @@
-function Button({ setCounter, operation, id, calculation, children }) {
-  const handleClick = () => {
-    if (operation === "reset/count") {
-      // item.count = 0;
-      // item.value = 1;
-      // item.list = [...item.list, 0];  <--------- direct mutation bad practice
-      // item.action = 0;
-      setCounter((prevCounter) =>
-        prevCounter.map((counterItem) =>
-          counterItem.id === id
-            ? {
-                ...counterItem,
-                count: 0,
-                value: 1,
-                // list: [...counterItem.list, 0],
-                // action: 0,
-              }
-            : counterItem
-        )
-      );
-    }
-    if (operation === "reset/history") {
-      setCounter((prevCounter) =>
-        prevCounter.map((item) =>
-          item.id === id ? { ...item, list: [] } : item
-        )
-      );
-    }
-    if (operation === "increment") calculation("increment", id);
-    if (operation === "decrement") calculation("decrement", id);
-  };
+// import { useCallback, useEffect, useState } from "react";
 
+// Button Component
+function Button({ operation, children, onClick }) {
   const getButtonStyle = () => {
-    if (operation === "reset") {
-      return "bg-red-500 hover:bg-red-600";
-    } else if (operation === "add") {
-      return "bg-green-500 hover:bg-green-600";
-    } else {
-      return "bg-orange-500 hover:bg-orange-600";
+    switch (operation) {
+      case "reset/count":
+      case "reset/history":
+        return "bg-slate-700 hover:bg-slate-800 text-white border-slate-600";
+      case "increment":
+        return "bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-500";
+      case "decrement":
+        return "bg-rose-600 hover:bg-rose-700 text-white border-rose-500";
+      default:
+        return "bg-indigo-600 hover:bg-indigo-700 text-white border-indigo-500";
     }
   };
 
   return (
     <button
-      onClick={handleClick}
-      className={`${getButtonStyle()} text-white font-bold py-3 px-6 rounded-lg transition duration-200 flex-1 text-lg shadow-md hover:shadow-lg`}
+      className={`${getButtonStyle()} font-semibold py-2.5 px-5 rounded-lg transition-all duration-200 flex-1 shadow-sm hover:shadow-md border active:scale-95`}
+      onClick={onClick}
     >
-      {/* {operation === "reset/count"
-        ? "reset-count"
-        : operation === "increment"  <----------- this whole check is not required if we pass the data through the children prop 
-        ? `+`
-        : operation === "reset/history"
-        ? children
-
-        : `-`} */}
       {children}
     </button>
   );
