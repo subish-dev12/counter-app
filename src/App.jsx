@@ -6,13 +6,14 @@ import History from "./History";
 export default function App() {
   const [counter, setCounter] = useState([
     {
-      id: new Date(),
+      id: crypto.randomUUID(),
       count: 0,
       value: 1,
       list: [],
       action: 0,
       minCount: 0,
       maxCount: 0,
+      select: false,
     },
   ]);
 
@@ -24,16 +25,22 @@ export default function App() {
     let hours = now.getHours();
     let minutes = now.getMinutes();
     let seconds = now.getSeconds();
-
     const timeFormat = hours >= 12 ? "pm" : "am";
     hours = hours % 12;
     hours = hours.toString().padStart(2, "0");
     minutes = minutes.toString().padStart(2, "0");
     seconds = seconds.toString().padStart(2, "0");
-
     const time = `${hours}:${minutes}:${seconds}${timeFormat}`;
-
     return time;
+  };
+
+  const handleClick = (id) => {
+    console.log("clicked item is", id);
+    setCounter((prevCounter) =>
+      prevCounter.map((item) => {
+        item.id === id ? { ...item, select: true } : item;
+      }),
+    );
   };
 
   const calculation = useCallback(
@@ -73,11 +80,11 @@ export default function App() {
         }
 
         const targetItem = prevCounter.find((item) => item.id === id);
-
         if (!targetItem) {
           console.log(`item with id:${id} dont exist`);
           return prevCounter;
         }
+
         const baseValue =
           targetItem.value === 0 || targetItem.value === ""
             ? 1
@@ -117,10 +124,10 @@ export default function App() {
         );
 
         const itemToBeUpdated = newCounter.find((c) => c.id === id);
-
         if (!itemToBeUpdated.list || itemToBeUpdated.list.length === 0) {
           return newCounter;
         }
+
         const listValues = itemToBeUpdated?.list.map((a) => a.value);
         const maxCount = listValues.length > 0 ? Math.max(...listValues) : null;
         const minCount = listValues.length > 0 ? Math.min(...listValues) : null;
@@ -138,11 +145,9 @@ export default function App() {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.target.tagName === "INPUT") return;
-
       if (e.key === "=") {
         calculation("increment");
       }
-
       if (e.key === "-") {
         calculation("decrement");
       }
@@ -161,75 +166,68 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-violet-50">
       {/* Navigation Bar */}
-      <div className="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-lg flex items-center justify-center shadow-md">
-              <span className="text-white font-bold text-xl">C</span>
+      <nav className="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-14">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">🔢</span>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+                Counter Pro
+              </h1>
             </div>
-            <h1 className="text-2xl font-bold text-slate-900">Counter Pro</h1>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full">
-            <span className="font-semibold">
-              {counter?.length > 0 ? counter?.length : "0"}
-            </span>
-            <span>counter{counter?.length !== 1 ? "s" : ""}</span>
+            <div className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium">
+              {counter?.length > 0 ? counter?.length : "0"} counter
+              {counter?.length !== 1 ? "s" : ""}
+            </div>
           </div>
         </div>
-      </div>
+      </nav>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-10">
+      <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Counters Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 mb-6 auto-rows-fr">
           {counter?.map((item, idx) => (
             <div
               key={item.id}
-              className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-slate-200"
+              className={`bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 ${item?.select ? "border-4 border-black" : ""} overflow-hidden flex flex-col h-full max-w-sm mx-auto w-full`}
+              onClick={() => handleClick(item.id)}
             >
               {/* Card Header */}
-              <div className="bg-gradient-to-r from-slate-800 to-slate-700 px-6 py-3.5 border-b border-slate-600">
-                <h2 className="text-white font-semibold text-base">
-                  Counter #{idx + 1}
-                </h2>
+              <div className="bg-gradient-to-r from-indigo-500 to-violet-500 text-white px-3 py-1.5">
+                <h2 className="text-xs font-semibold">Counter #{idx + 1}</h2>
               </div>
 
               {/* Card Body */}
-              <div className="p-6">
+              <div className="p-3 space-y-2 flex-1 flex flex-col">
                 {/* Counter Display */}
-                <div
-                  className={`text-6xl font-bold text-center py-10 rounded-xl mb-6 transition-all duration-300 border-2 ${
-                    item.count < 0
-                      ? "bg-rose-50 text-rose-700 border-rose-200"
-                      : item.count === 0
-                        ? "bg-slate-50 text-slate-600 border-slate-200"
-                        : "bg-emerald-50 text-emerald-700 border-emerald-200"
-                  }`}
-                >
-                  {getLogo(item.count)}
+                <div className="bg-gradient-to-br from-slate-50 to-indigo-50 rounded-lg p-3 text-center">
+                  <div className="text-2xl font-bold text-slate-800">
+                    {getLogo(item.count)}
+                  </div>
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex gap-3 mb-5">
+                <div className="grid grid-cols-2 gap-2">
                   <Button
                     onClick={() => calculation("increment", item.id)}
                     operation="increment"
                   >
-                    <span className="text-xl font-bold">+</span>
+                    +
                   </Button>
                   <Button
                     onClick={() => calculation("decrement", item.id)}
                     operation="decrement"
                   >
-                    <span className="text-xl font-bold">−</span>
+                    −
                   </Button>
                 </div>
 
                 {/* Input Section */}
-                <div className="mb-5 p-4 bg-slate-50 rounded-lg border border-slate-200">
-                  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-600">
                     Step Value
                   </label>
                   <input
@@ -245,6 +243,7 @@ export default function App() {
                         );
                         return;
                       }
+
                       const num = Number(value);
                       if (
                         Number.isFinite(num) &&
@@ -258,43 +257,38 @@ export default function App() {
                         );
                       }
                     }}
-                    className="w-full px-4 py-2.5 bg-white border border-slate-300 text-slate-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder-slate-400 transition-all"
+                    className="w-full px-2 py-1.5 bg-white border border-slate-300 text-slate-900 rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder-slate-400 transition-all"
                     placeholder="Enter step value"
                   />
                 </div>
 
                 {/* History Component */}
-                <History list={item.list} />
+                <div className="flex-1">
+                  <History list={item.list} />
+                </div>
 
                 {/* Reset Buttons */}
-                <div className="flex gap-3">
-                  <div className="flex-1">
-                    <Button
-                      operation="reset/count"
-                      onClick={() => calculation("reset/count", item.id)}
-                    >
-                      Reset
-                    </Button>
-                  </div>
+                <div className="flex gap-2 mt-auto">
+                  <Button onClick={() => calculation("reset/count", item.id)}>
+                    Reset
+                  </Button>
                   {item.list.length > 0 && (
-                    <div className="flex-1">
-                      <Button
-                        onClick={() => calculation("reset/history", item.id)}
-                        operation="reset/history"
-                      >
-                        Clear History
-                      </Button>
-                    </div>
+                    <Button
+                      onClick={() => calculation("reset/history", item.id)}
+                      operation="reset/history"
+                    >
+                      Clear History
+                    </Button>
                   )}
                 </div>
-              </div>
 
-              {/* Stats Footer */}
-              <StatBoard
-                largest={item.maxCount}
-                smallest={item.minCount}
-                action={item.action}
-              />
+                {/* Stats Footer */}
+                <StatBoard
+                  action={item.action}
+                  minCount={item.minCount}
+                  maxCount={item.maxCount}
+                />
+              </div>
             </div>
           ))}
         </div>
@@ -303,13 +297,12 @@ export default function App() {
         <div className="flex justify-center">
           <button
             onClick={() => calculation("new/counter")}
-            className="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-semibold py-3 px-8 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 active:scale-95 flex items-center gap-2"
+            className="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-semibold py-2.5 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 active:scale-95 flex items-center gap-2 text-sm"
           >
-            <span className="text-xl">+</span>
-            Add New Counter
+            + Add New Counter
           </button>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

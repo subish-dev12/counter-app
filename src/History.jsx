@@ -2,7 +2,7 @@ function History({ list }) {
   const lastThree = list.slice(-3);
   return (
     <>
-      {list.length > 0 && (
+      {list.length > 0 ? (
         <div className="mb-5">
           <h3 className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2.5">
             Recent Activity
@@ -31,8 +31,8 @@ function History({ list }) {
                           item.value > 0
                             ? "bg-emerald-100 text-emerald-700"
                             : item.value < 0
-                            ? "bg-rose-100 text-rose-700"
-                            : "bg-slate-200 text-slate-700"
+                              ? "bg-rose-100 text-rose-700"
+                              : "bg-slate-200 text-slate-700"
                         }`}
                       >
                         {item.value}
@@ -46,6 +46,12 @@ function History({ list }) {
               </tbody>
             </table>
           </div>
+        </div>
+      ) : (
+        <div className="mb-5 flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg border border-slate-200 py-12 px-4">
+          <p className="text-center text-slate-500 text-lg font-medium">
+            Press + or - to start the counter
+          </p>
         </div>
       )}
     </>
