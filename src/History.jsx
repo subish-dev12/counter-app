@@ -1,5 +1,5 @@
 function History({ list }) {
-  const lastThree = list.slice(-3);
+  const lastThree = list?.slice(-3);
   return (
     <>
       {list.length > 0 ? (

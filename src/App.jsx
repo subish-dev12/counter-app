@@ -37,9 +37,9 @@ export default function App() {
   const handleClick = (id) => {
     console.log("clicked item is", id);
     setCounter((prevCounter) =>
-      prevCounter.map((item) => {
-        item.id === id ? { ...item, select: true } : item;
-      }),
+      prevCounter.map((item) =>
+        item.id === id ? { ...item, select: true } : item,
+      ),
     );
   };
 
@@ -191,7 +191,7 @@ export default function App() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 mb-6 auto-rows-fr">
           {counter?.map((item, idx) => (
             <div
-              key={item.id}
+              key={item?.id}
               className={`bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 ${item?.select ? "border-4 border-black" : ""} overflow-hidden flex flex-col h-full max-w-sm mx-auto w-full`}
               onClick={() => handleClick(item.id)}
             >
@@ -205,7 +205,7 @@ export default function App() {
                 {/* Counter Display */}
                 <div className="bg-gradient-to-br from-slate-50 to-indigo-50 rounded-lg p-3 text-center">
                   <div className="text-2xl font-bold text-slate-800">
-                    {getLogo(item.count)}
+                    {getLogo(item?.count)}
                   </div>
                 </div>
 
@@ -232,7 +232,7 @@ export default function App() {
                   </label>
                   <input
                     type="number"
-                    value={item.value}
+                    value={item?.value}
                     onChange={(e) => {
                       const value = e.target.value;
                       if (value === "") {
@@ -264,7 +264,7 @@ export default function App() {
 
                 {/* History Component */}
                 <div className="flex-1">
-                  <History list={item.list} />
+                  <History list={item?.list} />
                 </div>
 
                 {/* Reset Buttons */}
@@ -272,7 +272,7 @@ export default function App() {
                   <Button onClick={() => calculation("reset/count", item.id)}>
                     Reset
                   </Button>
-                  {item.list.length > 0 && (
+                  {item?.list.length > 0 && (
                     <Button
                       onClick={() => calculation("reset/history", item.id)}
                       operation="reset/history"
@@ -284,9 +284,9 @@ export default function App() {
 
                 {/* Stats Footer */}
                 <StatBoard
-                  action={item.action}
-                  minCount={item.minCount}
-                  maxCount={item.maxCount}
+                  action={item?.action}
+                  minCount={item?.minCount}
+                  maxCount={item?.maxCount}
                 />
               </div>
             </div>
