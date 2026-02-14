@@ -13,9 +13,14 @@ export default function App() {
       action: 0,
       minCount: 0,
       maxCount: 0,
-      select: false,
     },
   ]);
+
+  const [selectedId, setSelectedId] = useState(counter[0].id);
+
+  const handleClick = (id) => {
+    setSelectedId(id);
+  };
 
   const maxCountValue = 100;
   const minCountValue = -100;
@@ -34,14 +39,17 @@ export default function App() {
     return time;
   };
 
-  const handleClick = (id) => {
-    console.log("clicked item is", id);
-    setCounter((prevCounter) =>
-      prevCounter.map((item) =>
-        item.id === id ? { ...item, select: true } : item,
-      ),
-    );
-  };
+  // const handleClick = (id) => {
+  //   setCounter((prevCounter) =>
+  //     prevCounter.map((item) =>
+  //       item.id === id ? { ...item, select: true } : { ...item, select: false },
+  //     ),
+  //   );
+  // };
+
+  // const selectedItem = counter.find((item) => item.id === selectedId);
+
+  // console.log("selected item = ", selectedItem);
 
   const calculation = useCallback(
     (operation, id) => {
@@ -144,18 +152,19 @@ export default function App() {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
+      if (!selectedId) return;
       if (e.target.tagName === "INPUT") return;
-      if (e.key === "=") {
-        calculation("increment");
+      if (e.key === "=" || e.key === "+") {
+        calculation("increment", selectedId);
       }
       if (e.key === "-") {
-        calculation("decrement");
+        calculation("decrement", selectedId);
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [calculation]);
+  }, [calculation, selectedId]);
 
   const getLogo = (count) => {
     if (count < 0) return `💀 ${count}`;
@@ -192,7 +201,7 @@ export default function App() {
           {counter?.map((item, idx) => (
             <div
               key={item?.id}
-              className={`bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 ${item?.select ? "border-4 border-black" : ""} overflow-hidden flex flex-col h-full max-w-sm mx-auto w-full`}
+              className={`bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 ${item.id === selectedId ? "border-4 border-black" : ""} overflow-hidden flex flex-col h-full max-w-sm mx-auto w-full`}
               onClick={() => handleClick(item.id)}
             >
               {/* Card Header */}
