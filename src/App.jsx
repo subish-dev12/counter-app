@@ -1,27 +1,69 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "./Button";
 import StatBoard from "./StatBoard";
 import History from "./History";
 
 export default function App() {
-  const [counter, setCounter] = useState([
-    {
-      id: crypto.randomUUID(),
+  const [counter, setCounter] = useState({
+    [crypto.randomUUID()]: {
       count: 0,
       value: 1,
-      list: [],
-      action: 0,
-      minCount: 0,
-      maxCount: 0,
     },
-  ]);
+  });
 
-  const [selectedId, setSelectedId] = useState(counter[0].id);
+  // list: [],
+  // maxCount: 0,
+  // action: 0,
+  // minCount: 0,
+
+  const [selectedId, setSelectedId] = useState(Object.keys(counter)[0]);
 
   const handleClick = (id) => {
     setSelectedId(id);
   };
 
+  console.log("selected id", selectedId);
+
+  function addCounter() {
+    setCounter((prev) => ({
+      ...prev,
+      [crypto.randomUUID()]: {
+        count: 0,
+        value: 1,
+      },
+    }));
+  }
+
+  function incrementCounter(id, value = 1) {
+    console.log(counter);
+    setCounter((prev) => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        count: prev[id].count + value,
+      },
+    }));
+  }
+
+  function resetCounter(id) {
+    setCounter((prev) => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        count: 0,
+      },
+    }));
+  }
+
+  function decrementCounter(id, value = 1) {
+    setCounter((prev) => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        count: prev[id].count - value,
+      },
+    }));
+  }
   const maxCountValue = 100;
   const minCountValue = -100;
 
@@ -39,132 +81,21 @@ export default function App() {
     return time;
   };
 
-  // const handleClick = (id) => {
-  //   setCounter((prevCounter) =>
-  //     prevCounter.map((item) =>
-  //       item.id === id ? { ...item, select: true } : { ...item, select: false },
-  //     ),
-  //   );
-  // };
-
-  // const selectedItem = counter.find((item) => item.id === selectedId);
-
-  // console.log("selected item = ", selectedItem);
-
-  const calculation = useCallback(
-    (operation, id) => {
-      setCounter((prevCounter) => {
-        if (operation === "new/counter") {
-          return [
-            ...prevCounter,
-            {
-              id: new Date(),
-              count: 0,
-              value: 1,
-              list: [],
-              action: 0,
-              minCount: 0,
-              maxCount: 0,
-            },
-          ];
-        }
-
-        if (operation === "reset/count") {
-          return prevCounter?.map((counterItem) =>
-            counterItem.id === id
-              ? {
-                  ...counterItem,
-                  count: 0,
-                  value: 1,
-                }
-              : counterItem,
-          );
-        }
-
-        if (operation === "reset/history") {
-          return prevCounter.map((item) =>
-            item.id === id ? { ...item, list: [] } : item,
-          );
-        }
-
-        const targetItem = prevCounter.find((item) => item.id === id);
-        if (!targetItem) {
-          console.log(`item with id:${id} dont exist`);
-          return prevCounter;
-        }
-
-        const baseValue =
-          targetItem.value === 0 || targetItem.value === ""
-            ? 1
-            : targetItem.value;
-
-        const newValue =
-          operation === "increment"
-            ? targetItem.count + baseValue
-            : targetItem.count - baseValue;
-
-        if (newValue > maxCountValue) {
-          alert(
-            `you can't go beyond the maximum value limit of ${maxCountValue}`,
-          );
-          return prevCounter;
-        }
-
-        if (newValue < minCountValue) {
-          alert(
-            `you can't go beyond the minimum value limit of ${minCountValue}`,
-          );
-          return prevCounter;
-        }
-
-        console.log("printing the count", newValue);
-
-        const newCounter = prevCounter.map((item) =>
-          item.id === id
-            ? {
-                ...item,
-                value: baseValue,
-                count: newValue,
-                list: [...item.list, { value: newValue, timeStamp: getTime() }],
-                action: item.action + 1,
-              }
-            : item,
-        );
-
-        const itemToBeUpdated = newCounter.find((c) => c.id === id);
-        if (!itemToBeUpdated.list || itemToBeUpdated.list.length === 0) {
-          return newCounter;
-        }
-
-        const listValues = itemToBeUpdated?.list.map((a) => a.value);
-        const maxCount = listValues.length > 0 ? Math.max(...listValues) : null;
-        const minCount = listValues.length > 0 ? Math.min(...listValues) : null;
-
-        const finalResult = newCounter.map((a) =>
-          a.id === id ? { ...a, maxCount, minCount } : a,
-        );
-
-        return finalResult;
-      });
-    },
-    [minCountValue],
-  );
-
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (!selectedId) return;
       if (e.target.tagName === "INPUT") return;
       if (e.key === "=" || e.key === "+") {
-        calculation("increment", selectedId);
+        incrementCounter(selectedId);
       }
       if (e.key === "-") {
-        calculation("decrement", selectedId);
+        decrementCounter("decrement", selectedId);
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [calculation, selectedId]);
+  }, [selectedId]);
 
   const getLogo = (count) => {
     if (count < 0) return `💀 ${count}`;
@@ -173,7 +104,6 @@ export default function App() {
     if (count <= 30) return `⭐⭐ ${count}`;
     return `⭐⭐⭐ ${count}`;
   };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-violet-50">
       {/* Navigation Bar */}
@@ -198,15 +128,15 @@ export default function App() {
       <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Counters Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 mb-6 auto-rows-fr">
-          {counter?.map((item, idx) => (
+          {Object.entries(counter)?.map((item) => (
             <div
-              key={item?.id}
+              key={id}
               className={`bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 ${item.id === selectedId ? "border-4 border-black" : ""} overflow-hidden flex flex-col h-full max-w-sm mx-auto w-full`}
               onClick={() => handleClick(item.id)}
             >
               {/* Card Header */}
               <div className="bg-gradient-to-r from-indigo-500 to-violet-500 text-white px-3 py-1.5">
-                <h2 className="text-xs font-semibold">Counter #{idx + 1}</h2>
+                <h2 className="text-xs font-semibold">Counter #{1}</h2>
               </div>
 
               {/* Card Body */}
@@ -221,13 +151,13 @@ export default function App() {
                 {/* Action Buttons */}
                 <div className="grid grid-cols-2 gap-2">
                   <Button
-                    onClick={() => calculation("increment", item.id)}
+                    onClick={() => incrementCounter(id)}
                     operation="increment"
                   >
                     +
                   </Button>
                   <Button
-                    onClick={() => calculation("decrement", item.id)}
+                    onClick={() => decrementCounter(item.id)}
                     operation="decrement"
                   >
                     −
@@ -272,18 +202,16 @@ export default function App() {
                 </div>
 
                 {/* History Component */}
-                <div className="flex-1">
+                {/* <div className="flex-1">
                   <History list={item?.list} />
-                </div>
+                </div> */}
 
                 {/* Reset Buttons */}
                 <div className="flex gap-2 mt-auto">
-                  <Button onClick={() => calculation("reset/count", item.id)}>
-                    Reset
-                  </Button>
-                  {item?.list.length > 0 && (
+                  <Button onClick={() => resetCounter(item.id)}>Reset</Button>
+                  {item?.list?.length > 0 && (
                     <Button
-                      onClick={() => calculation("reset/history", item.id)}
+                      // onClick={() => resetHistory(item.id)}
                       operation="reset/history"
                     >
                       Clear History
@@ -305,7 +233,7 @@ export default function App() {
         {/* Add Counter Button */}
         <div className="flex justify-center">
           <button
-            onClick={() => calculation("new/counter")}
+            onClick={() => addCounter}
             className="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-semibold py-2.5 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 active:scale-95 flex items-center gap-2 text-sm"
           >
             + Add New Counter
