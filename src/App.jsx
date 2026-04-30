@@ -22,7 +22,8 @@ export default function App() {
     setSelectedId(id);
   };
 
-  console.log("selected id", selectedId);
+  console.log("counter state id", counter);
+  5;
 
   function addCounter() {
     setCounter((prev) => ({
@@ -34,13 +35,13 @@ export default function App() {
     }));
   }
 
-  function incrementCounter(id, value = 1) {
+  function incrementCounter(id) {
     console.log(counter);
     setCounter((prev) => ({
       ...prev,
       [id]: {
         ...prev[id],
-        count: prev[id].count + value,
+        count: prev[id].count + prev[id].value,
       },
     }));
   }
@@ -55,12 +56,12 @@ export default function App() {
     }));
   }
 
-  function decrementCounter(id, value = 1) {
+  function decrementCounter(id) {
     setCounter((prev) => ({
       ...prev,
       [id]: {
         ...prev[id],
-        count: prev[id].count - value,
+        count: prev[id].count - prev[id].value,
       },
     }));
   }
@@ -128,11 +129,11 @@ export default function App() {
       <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Counters Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 mb-6 auto-rows-fr">
-          {Object.entries(counter)?.map((item) => (
+          {Object.entries(counter)?.map(([id, item]) => (
             <div
               key={id}
               className={`bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 ${item.id === selectedId ? "border-4 border-black" : ""} overflow-hidden flex flex-col h-full max-w-sm mx-auto w-full`}
-              onClick={() => handleClick(item.id)}
+              onClick={() => handleClick(id)}
             >
               {/* Card Header */}
               <div className="bg-gradient-to-r from-indigo-500 to-violet-500 text-white px-3 py-1.5">
@@ -157,7 +158,7 @@ export default function App() {
                     +
                   </Button>
                   <Button
-                    onClick={() => decrementCounter(item.id)}
+                    onClick={() => decrementCounter(id)}
                     operation="decrement"
                   >
                     −
@@ -175,25 +176,28 @@ export default function App() {
                     onChange={(e) => {
                       const value = e.target.value;
                       if (value === "") {
-                        setCounter((prevCounter) =>
-                          prevCounter.map((c) =>
-                            c.id === item.id ? { ...c, value: "" } : c,
-                          ),
-                        );
+                        setCounter((prevCounter) => ({
+                          ...prevCounter,
+                          [id]: {
+                            ...prevCounter[id],
+                            value: "",
+                          },
+                        }));
                         return;
                       }
-
                       const num = Number(value);
                       if (
                         Number.isFinite(num) &&
                         num <= maxCountValue &&
                         num >= minCountValue
                       ) {
-                        setCounter((prevCounter) =>
-                          prevCounter.map((c) =>
-                            c.id === item.id ? { ...c, value: num } : c,
-                          ),
-                        );
+                        setCounter((prevCounter) => ({
+                          ...prevCounter,
+                          [id]: {
+                            ...prevCounter[id],
+                            value: num,
+                          },
+                        }));
                       }
                     }}
                     className="w-full px-2 py-1.5 bg-white border border-slate-300 text-slate-900 rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder-slate-400 transition-all"
