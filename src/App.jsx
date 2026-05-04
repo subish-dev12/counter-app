@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Button from "./Button";
 import StatBoard from "./StatBoard";
 import History from "./History";
@@ -8,22 +8,22 @@ export default function App() {
     [crypto.randomUUID()]: {
       count: 0,
       value: 1,
+      list: [],
     },
   });
 
-  // list: [],
   // maxCount: 0,
   // action: 0,
   // minCount: 0,
 
   const [selectedId, setSelectedId] = useState(Object.keys(counter)[0]);
 
+  const maxCountValue = 100;
+  const minCountValue = -100;
+
   const handleClick = (id) => {
     setSelectedId(id);
   };
-
-  console.log("counter state id", counter);
-  5;
 
   function addCounter() {
     setCounter((prev) => ({
@@ -31,20 +31,34 @@ export default function App() {
       [crypto.randomUUID()]: {
         count: 0,
         value: 1,
+        list: [],
       },
     }));
   }
 
-  function incrementCounter(id) {
-    console.log(counter);
-    setCounter((prev) => ({
-      ...prev,
-      [id]: {
-        ...prev[id],
-        count: prev[id].count + prev[id].value,
-      },
-    }));
-  }
+  console.log("counter kasto xa", counter);
+
+  const handleIncrement = useCallback(
+    (id) => {
+      setCounter((prev) => {
+        const current = prev[id];
+        //if wrong id is  passed current would be undefined so use guard clause.
+        if (!current) return prev;
+        const newCount = current.count + current.value;
+        const finalCount = Math.min(newCount, maxCountValue);
+        return {
+          ...prev,
+          [id]: {
+            ...current,
+            count: finalCount,
+            list: [...current.list, finalCount],
+            time: getTime(),
+          },
+        };
+      });
+    },
+    [maxCountValue],
+  );
 
   function resetCounter(id) {
     setCounter((prev) => ({
@@ -52,21 +66,42 @@ export default function App() {
       [id]: {
         ...prev[id],
         count: 0,
+        list: [],
       },
     }));
   }
 
-  function decrementCounter(id) {
+  function resetHistory(id) {
     setCounter((prev) => ({
       ...prev,
       [id]: {
         ...prev[id],
-        count: prev[id].count - prev[id].value,
+        list: [],
       },
     }));
   }
-  const maxCountValue = 100;
-  const minCountValue = -100;
+
+  const handleDecrement = useCallback(
+    (id) => {
+      setCounter((prev) => {
+        const current = prev[id];
+        //if wrong id is  passed current would be undefined so use guard clause.
+        if (!current) return prev;
+        const newCount = current.count - current.value;
+        const finalCount = Math.max(newCount, minCountValue);
+        return {
+          ...prev,
+          [id]: {
+            ...current,
+            count: finalCount,
+            list: [...current.list, { count: finalCount, time: getTime() }],
+            // time: finalCount,
+          },
+        };
+      });
+    },
+    [minCountValue],
+  );
 
   const getTime = () => {
     const now = new Date();
@@ -87,16 +122,16 @@ export default function App() {
       if (!selectedId) return;
       if (e.target.tagName === "INPUT") return;
       if (e.key === "=" || e.key === "+") {
-        incrementCounter(selectedId);
+        handleIncrement(selectedId);
       }
       if (e.key === "-") {
-        decrementCounter("decrement", selectedId);
+        handleDecrement(selectedId);
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedId]);
+  }, [selectedId, handleDecrement, handleIncrement]);
 
   const getLogo = (count) => {
     if (count < 0) return `💀 ${count}`;
@@ -132,7 +167,7 @@ export default function App() {
           {Object.entries(counter)?.map(([id, item]) => (
             <div
               key={id}
-              className={`bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 ${item.id === selectedId ? "border-4 border-black" : ""} overflow-hidden flex flex-col h-full max-w-sm mx-auto w-full`}
+              className={`bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 ${id === selectedId ? "border-4 border-black" : ""} overflow-hidden flex flex-col h-full max-w-sm mx-auto w-full`}
               onClick={() => handleClick(id)}
             >
               {/* Card Header */}
@@ -152,13 +187,13 @@ export default function App() {
                 {/* Action Buttons */}
                 <div className="grid grid-cols-2 gap-2">
                   <Button
-                    onClick={() => incrementCounter(id)}
+                    onClick={() => handleIncrement(id)}
                     operation="increment"
                   >
                     +
                   </Button>
                   <Button
-                    onClick={() => decrementCounter(id)}
+                    onClick={() => handleDecrement(id)}
                     operation="decrement"
                   >
                     −
@@ -205,22 +240,16 @@ export default function App() {
                   />
                 </div>
 
-                {/* History Component */}
-                {/* <div className="flex-1">
-                  <History list={item?.list} />
-                </div> */}
+                {console.log("item k k xa", item.list)}
 
-                {/* Reset Buttons */}
-                <div className="flex gap-2 mt-auto">
-                  <Button onClick={() => resetCounter(item.id)}>Reset</Button>
-                  {item?.list?.length > 0 && (
-                    <Button
-                      // onClick={() => resetHistory(item.id)}
-                      operation="reset/history"
-                    >
-                      Clear History
-                    </Button>
-                  )}
+                {/* History Component */}
+                <div className="flex-1">
+                  <History
+                    list={item?.list}
+                    onReset={resetCounter}
+                    id={id}
+                    onResetHistory={resetHistory}
+                  />
                 </div>
 
                 {/* Stats Footer */}
@@ -237,7 +266,7 @@ export default function App() {
         {/* Add Counter Button */}
         <div className="flex justify-center">
           <button
-            onClick={() => addCounter}
+            onClick={addCounter}
             className="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-semibold py-2.5 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 active:scale-95 flex items-center gap-2 text-sm"
           >
             + Add New Counter
