@@ -1,13 +1,13 @@
 import Button from "./Button";
 
-function History({ list, onReset, id, onResetHistory, time }) {
-  console.log("actual list k ho ta", list);
-  const lastThree = Object.keys(list?.slice(-3));
+function History({ history, onReset, id, onResetHistory }) {
+  console.log("actual history k ho ta", history);
+  const lastThree = history?.slice(-3);
   console.log("last ko three k ho ", lastThree);
 
   return (
     <>
-      {list.length > 0 ? (
+      {history.length > 0 ? (
         <div className="mb-5">
           <h3 className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2.5">
             Recent Activity
@@ -24,7 +24,7 @@ function History({ list, onReset, id, onResetHistory, time }) {
                   </th>
                 </tr>
               </thead>
-              {list.map((item, index) => (
+              {lastThree.map((item, index) => (
                 <tbody key={index}>
                   <tr className="border-b border-slate-100 hover:bg-slate-100 transition-colors last:border-b-0">
                     <td className="px-4 py-2.5">
@@ -58,7 +58,7 @@ function History({ list, onReset, id, onResetHistory, time }) {
       )}
       {/* Reset Buttons */}
       <div className="flex gap-2 mt-auto">
-        {list?.length > 0 && (
+        {history?.length > 0 && (
           <>
             <Button onClick={() => onReset(id)}>Reset</Button>
             <Button onClick={() => onResetHistory(id)}>Clear History</Button>

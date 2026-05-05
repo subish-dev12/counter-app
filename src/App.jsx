@@ -8,7 +8,7 @@ export default function App() {
     [crypto.randomUUID()]: {
       count: 0,
       value: 1,
-      list: [],
+      history: [],
     },
   });
 
@@ -31,52 +31,7 @@ export default function App() {
       [crypto.randomUUID()]: {
         count: 0,
         value: 1,
-        list: [],
-      },
-    }));
-  }
-
-  console.log("counter kasto xa", counter);
-
-  const handleIncrement = useCallback(
-    (id) => {
-      setCounter((prev) => {
-        const current = prev[id];
-        //if wrong id is  passed current would be undefined so use guard clause.
-        if (!current) return prev;
-        const newCount = current.count + current.value;
-        const finalCount = Math.min(newCount, maxCountValue);
-        return {
-          ...prev,
-          [id]: {
-            ...current,
-            count: finalCount,
-            list: [...current.list, finalCount],
-            time: getTime(),
-          },
-        };
-      });
-    },
-    [maxCountValue],
-  );
-
-  function resetCounter(id) {
-    setCounter((prev) => ({
-      ...prev,
-      [id]: {
-        ...prev[id],
-        count: 0,
-        list: [],
-      },
-    }));
-  }
-
-  function resetHistory(id) {
-    setCounter((prev) => ({
-      ...prev,
-      [id]: {
-        ...prev[id],
-        list: [],
+        history: [],
       },
     }));
   }
@@ -93,8 +48,10 @@ export default function App() {
           ...prev,
           [id]: {
             ...current,
-            count: finalCount,
-            list: [...current.list, { count: finalCount, time: getTime() }],
+            history: [
+              ...current.history,
+              { count: finalCount, time: getTime() },
+            ],
             // time: finalCount,
           },
         };
@@ -102,6 +59,52 @@ export default function App() {
     },
     [minCountValue],
   );
+
+  console.log("counter kasto xa", counter);
+
+  const handleIncrement = useCallback(
+    (id) => {
+      setCounter((prev) => {
+        const current = prev[id];
+        //if wrong id is  passed current would be undefined so use guard clause.
+        if (!current) return prev;
+        const newCount = current.count + current.value;
+        const finalCount = Math.min(newCount, maxCountValue);
+        return {
+          ...prev,
+          [id]: {
+            ...current,
+            history: [
+              ...current.history,
+              { count: finalCount, time: getTime() },
+            ],
+          },
+        };
+      });
+    },
+    [maxCountValue],
+  );
+
+  function resetCounter(id) {
+    setCounter((prev) => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        count: 0,
+        history: [],
+      },
+    }));
+  }
+
+  function resetHistory(id) {
+    setCounter((prev) => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        histo: [],
+      },
+    }));
+  }
 
   const getTime = () => {
     const now = new Date();
@@ -180,7 +183,7 @@ export default function App() {
                 {/* Counter Display */}
                 <div className="bg-gradient-to-br from-slate-50 to-indigo-50 rounded-lg p-3 text-center">
                   <div className="text-2xl font-bold text-slate-800">
-                    {getLogo(item?.count)}
+                    {getLogo(item?.history.count)}
                   </div>
                 </div>
 
@@ -240,12 +243,12 @@ export default function App() {
                   />
                 </div>
 
-                {console.log("item k k xa", item.list)}
+                {console.log("item k k xa", item.history)}
 
                 {/* History Component */}
                 <div className="flex-1">
                   <History
-                    list={item?.list}
+                    history={item?.history}
                     onReset={resetCounter}
                     id={id}
                     onResetHistory={resetHistory}
