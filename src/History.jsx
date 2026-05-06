@@ -60,7 +60,7 @@ function History({ history, onReset, id, onResetHistory }) {
       <div className="flex gap-2 mt-auto">
         {history?.length > 0 && (
           <>
-            <Button onClick={() => onReset(id)}>Reset</Button>
+            <Button onClick={() => onReset(id)}>Reset Count</Button>
             <Button onClick={() => onResetHistory(id)}>Clear History</Button>
           </>
         )}

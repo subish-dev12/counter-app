@@ -2,14 +2,20 @@ import { useCallback, useEffect, useState } from "react";
 import Button from "./Button";
 import StatBoard from "./StatBoard";
 import History from "./History";
+import getTime from "./utils/calculation";
 
 export default function App() {
-  const [counter, setCounter] = useState({
-    [crypto.randomUUID()]: {
-      count: 0,
-      value: 1,
-      history: [],
-    },
+  // const [check, setCheck] = useState(console.log("initializer running"));
+
+  //lazy init to avoid re-rendering the expensive calls
+  const [counter, setCounter] = useState(() => {
+    return {
+      [crypto.randomUUID()]: {
+        value: 1,
+        count: 1,
+        history: [{ count: 1, time: getTime() }],
+      },
+    };
   });
 
   // maxCount: 0,
@@ -48,6 +54,7 @@ export default function App() {
           ...prev,
           [id]: {
             ...current,
+            count: finalCount,
             history: [
               ...current.history,
               { count: finalCount, time: getTime() },
@@ -59,8 +66,6 @@ export default function App() {
     },
     [minCountValue],
   );
-
-  console.log("counter kasto xa", counter);
 
   const handleIncrement = useCallback(
     (id) => {
@@ -74,6 +79,7 @@ export default function App() {
           ...prev,
           [id]: {
             ...current,
+            count: finalCount,
             history: [
               ...current.history,
               { count: finalCount, time: getTime() },
@@ -91,7 +97,6 @@ export default function App() {
       [id]: {
         ...prev[id],
         count: 0,
-        history: [],
       },
     }));
   }
@@ -101,24 +106,12 @@ export default function App() {
       ...prev,
       [id]: {
         ...prev[id],
-        histo: [],
+        history: [],
       },
     }));
   }
 
-  const getTime = () => {
-    const now = new Date();
-    let hours = now.getHours();
-    let minutes = now.getMinutes();
-    let seconds = now.getSeconds();
-    const timeFormat = hours >= 12 ? "pm" : "am";
-    hours = hours % 12;
-    hours = hours.toString().padStart(2, "0");
-    minutes = minutes.toString().padStart(2, "0");
-    seconds = seconds.toString().padStart(2, "0");
-    const time = `${hours}:${minutes}:${seconds}${timeFormat}`;
-    return time;
-  };
+  console.log("how counter looks like", Object.keys(counter) + 1);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -156,8 +149,11 @@ export default function App() {
               </h1>
             </div>
             <div className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium">
-              {counter?.length > 0 ? counter?.length : "0"} counter
-              {counter?.length !== 1 ? "s" : ""}
+              {Object.keys(counter)?.length > 0
+                ? Object.keys(counter)?.length
+                : "0"}{" "}
+              counter
+              {Object.keys(counter)?.length !== 1 ? "s" : ""}
             </div>
           </div>
         </div>
@@ -167,7 +163,7 @@ export default function App() {
       <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Counters Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 mb-6 auto-rows-fr">
-          {Object.entries(counter)?.map(([id, item]) => (
+          {Object.entries(counter)?.map(([id, item], index) => (
             <div
               key={id}
               className={`bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 ${id === selectedId ? "border-4 border-black" : ""} overflow-hidden flex flex-col h-full max-w-sm mx-auto w-full`}
@@ -175,7 +171,7 @@ export default function App() {
             >
               {/* Card Header */}
               <div className="bg-gradient-to-r from-indigo-500 to-violet-500 text-white px-3 py-1.5">
-                <h2 className="text-xs font-semibold">Counter #{1}</h2>
+                <h2 className="text-xs font-semibold">Counter #{index + 1}</h2>
               </div>
 
               {/* Card Body */}
@@ -183,7 +179,7 @@ export default function App() {
                 {/* Counter Display */}
                 <div className="bg-gradient-to-br from-slate-50 to-indigo-50 rounded-lg p-3 text-center">
                   <div className="text-2xl font-bold text-slate-800">
-                    {getLogo(item?.history.count)}
+                    {getLogo(item?.count)}
                   </div>
                 </div>
 
