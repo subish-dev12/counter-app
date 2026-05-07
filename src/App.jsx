@@ -13,7 +13,7 @@ export default function App() {
       [crypto.randomUUID()]: {
         value: 1,
         count: 1,
-        history: [{ count: 1, time: getTime() }],
+        history: [],
       },
     };
   });
@@ -37,7 +37,7 @@ export default function App() {
       [crypto.randomUUID()]: {
         count: 0,
         value: 1,
-        history: [],
+        history: [{ count: 1, time: getTime() }],
       },
     }));
   }
@@ -252,11 +252,7 @@ export default function App() {
                 </div>
 
                 {/* Stats Footer */}
-                <StatBoard
-                  action={item?.action}
-                  minCount={item?.minCount}
-                  maxCount={item?.maxCount}
-                />
+                <StatBoard history={item.history} />
               </div>
             </div>
           ))}

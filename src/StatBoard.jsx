@@ -1,5 +1,12 @@
 // StatBoard Component
-function StatBoard({ largest, smallest, action }) {
+function StatBoard({ action, history }) {
+  console.log("history k ho ", history);
+
+  const maxCount =
+    history.length > 0 ? Math.max(...history.map((item) => item.count)) : 0;
+  const minCount =
+    history.length > 0 ? Math.min(...history.map((item) => item.count)) : 0;
+
   return (
     <div className="mt-6 pt-5 border-t border-slate-200 bg-slate-50 px-6 py-5 rounded-b-xl">
       <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3.5">
@@ -12,7 +19,7 @@ function StatBoard({ largest, smallest, action }) {
             Peak
           </p>
           <p className="text-xl font-bold text-slate-900">
-            {largest !== null ? largest : "—"}
+            {maxCount !== null ? maxCount : "—"}
           </p>
         </div>
         <div className="bg-white border border-slate-200 rounded-lg p-3.5 hover:border-rose-300 transition-colors">
@@ -21,7 +28,7 @@ function StatBoard({ largest, smallest, action }) {
             Low
           </p>
           <p className="text-xl font-bold text-slate-900">
-            {smallest !== null ? smallest : "—"}
+            {minCount !== null ? minCount : "—"}
           </p>
         </div>
         <div className="bg-white border border-slate-200 rounded-lg p-3.5 hover:border-indigo-300 transition-colors">

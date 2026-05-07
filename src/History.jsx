@@ -1,9 +1,7 @@
 import Button from "./Button";
 
 function History({ history, onReset, id, onResetHistory }) {
-  console.log("actual history k ho ta", history);
-  const lastThree = history?.slice(-3);
-  console.log("last ko three k ho ", lastThree);
+  const lastThreeCount = history?.slice(-3);
 
   return (
     <>
@@ -24,7 +22,7 @@ function History({ history, onReset, id, onResetHistory }) {
                   </th>
                 </tr>
               </thead>
-              {lastThree.map((item, index) => (
+              {lastThreeCount.map((item, index) => (
                 <tbody key={index}>
                   <tr className="border-b border-slate-100 hover:bg-slate-100 transition-colors last:border-b-0">
                     <td className="px-4 py-2.5">
